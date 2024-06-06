@@ -8,6 +8,7 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 ⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
 
 ## News
+- ``06 June 2024`` Checkpoints released!
 - ``05 June 2024`` ArXiv Preprint released: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03344)
 - ``22 April 2024`` OpenReview Preprint released: [https://openreview.net/forum?id=RZu0ZlQIUI](https://openreview.net/forum?id=RZu0ZlQIUI)
 
@@ -21,7 +22,7 @@ Transformers have rapidly become the preferred choice for audio classification, 
 ## Model Checkpoints
 The model checkpoints are available for the following experiments:
 
-#### Base Scratch
+### Base Scratch
 These are the checkpoints for the base models with the variant Fo-Bi (b), trained from scratch.
 | Dataset                  | #Params | Performance | Checkpoint |
 |--------------------------|:---------:|:-------------:|:------------:|
@@ -33,7 +34,7 @@ These are the checkpoints for the base models with the variant Fo-Bi (b), traine
 | Epic Sounds (Acc)        | 91.7M   | 44.92       | [Link](https://drive.google.com/file/d/1vLX3LjAggNAusW6B17s9uc2OoduvnvJi/view?usp=drive_link) |
 
 
-#### Small ImageNet
+### Small ImageNet
 These are the checkpoints for the small models with the variant Bi-Bi (c), initialized with ImageNet pretrained weights.
 | Dataset | #Params | Performance | Checkpoint |
 |---------|:---------:|:-------------:|:------------:|
@@ -44,7 +45,7 @@ These are the checkpoints for the small models with the variant Bi-Bi (c), initi
 | Speech Commands V2 (Acc) | 25.2M | 97.61 | [Link](https://drive.google.com/file/d/1jhUKxzUo2TMHrd1a2vojjv1x9De_HyFe/view?usp=drive_link) |
 | Epic Sounds (Acc) | 25.4M | 52.69 |        [Link](https://drive.google.com/file/d/1my_kS9COIHGsx4axx8bapN7RBDvp06cK/view?usp=drive_link) |
 
-#### Base AudioSet
+### Base AudioSet
 These are the checkpoints for the base models with the variant Fo-Bi (b), initialized with AudioSet pretrained weights.
 
 | Dataset | #Params | Performance | Checkpoint |
