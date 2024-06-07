@@ -8,6 +8,7 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 ⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
 
 ## News
+- ``07 June 2024`` Code released! (Initial release — further setup and cleaning in progress.)
 - ``06 June 2024`` Checkpoints released!
 - ``05 June 2024`` ArXiv Preprint released: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03344)
 - ``22 April 2024`` OpenReview Preprint released: [https://openreview.net/forum?id=RZu0ZlQIUI](https://openreview.net/forum?id=RZu0ZlQIUI)
