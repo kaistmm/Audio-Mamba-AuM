@@ -1,0 +1,13 @@
+*.pth
+*.zip
+*.pyc
+*.DS_Store
+.idea
+pretrained_models/*
+mamba/build/*
+mamba/selective_scan_cuda.cpython-310-x86_64-linux-gnu.so
+causal-conv1d/build/*
+causal-conv1d/causal_conv1d_cuda.cpython-310-x86_64-linux-gnu.so
+egs/audioset/data/datafiles/unbalanced.json
+egs/speechcommands/data/speech_commands_v0.02
+__pycache__
