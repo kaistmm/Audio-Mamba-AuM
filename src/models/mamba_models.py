@@ -414,6 +414,13 @@ class AudioMamba(nn.Module):
             )
 
             patch_size_load = proj_load.weight.shape[-2:]
+            
+            if aum_pretrain_fstride is None:
+                aum_pretrain_fstride = patch_size_load[0]
+            
+            if aum_pretrain_tstride is None:
+                aum_pretrain_tstride = patch_size_load[1]
+
             strides_load = (aum_pretrain_fstride, aum_pretrain_tstride)
 
             pos_embed_load = weights['pos_embed.pos_embed']

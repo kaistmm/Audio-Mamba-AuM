@@ -8,7 +8,7 @@ def d_prime(auc):
     d_prime = standard_normal.ppf(auc) * np.sqrt(2.0)
     return d_prime
 
-def calculate_stats(output, target):
+def calculate_stats(output, target, skips={}):
     """Calculate statistics including mAP, AUC, etc.
 
     Args:
@@ -33,7 +33,10 @@ def calculate_stats(output, target):
             target[:, k], output[:, k], average=None)
 
         # AUC
-        auc = metrics.roc_auc_score(target[:, k], output[:, k], average=None)
+        if not 'auc' in skips:
+            auc = metrics.roc_auc_score(target[:, k], output[:, k], average=None)
+        else:
+            auc = None
 
         # Precisions, recalls
         (precisions, recalls, thresholds) = metrics.precision_recall_curve(

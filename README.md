@@ -20,6 +20,9 @@ This repository contains the implementation of Audio-Mamba (AuM), a generic, sel
     <img src="AuM.png" alt="Pipeline" style="width: 50%;"/>
 </div>
 
+## Inference
+An example notebook for inference is provided in the ``examples/inference`` directory. The notebook demonstrates a minimal example of how to load a trained model and perform inference on a sample audio file.
+
 ## Model Checkpoints
 The model checkpoints are available for the following experiments:
 

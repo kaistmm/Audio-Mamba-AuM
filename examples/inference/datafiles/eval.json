@@ -1,0 +1,24 @@
+{
+    "data": [
+        {
+            "wav": "data/sample0.wav",
+            "labels": "/m/vggsd273"
+        },
+        {
+            "wav": "data/sample1.wav",
+            "labels": "/m/vggsd153"
+        },
+        {
+            "wav": "data/sample2.wav",
+            "labels": "/m/vggsd092"
+        },
+        {
+            "wav": "data/sample3.wav",
+            "labels": "/m/vggsd251"
+        },
+        {
+            "wav": "data/sample4.wav",
+            "labels": "/m/vggsd015"
+        }
+    ]
+}
