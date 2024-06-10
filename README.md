@@ -8,6 +8,7 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 ⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
 
 ## News
+- ``10 June 2024`` Setup guide released!
 - ``07 June 2024`` Code released! (Initial release — further setup and cleaning in progress.)
 - ``06 June 2024`` Checkpoints released!
 - ``05 June 2024`` ArXiv Preprint released: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03344)
@@ -19,6 +20,30 @@ This repository contains the implementation of Audio-Mamba (AuM), a generic, sel
 <div align="center">
     <img src="AuM.png" alt="Pipeline" style="width: 50%;"/>
 </div>
+
+## Setting Up the Repository
+Please run the following commands to set up the repository:
+### Create a Conda Environment
+```bash
+conda create -n aum python=3.10.13
+conda activate aum
+```
+### Setting Up CUDA and CuDNN
+```bash
+conda install nvidia/label/cuda-11.8.0::cuda-nvcc
+conda install nvidia/label/cuda-11.8.0::cuda
+conda install anaconda::cudnn
+```
+### Installing PyTorch and Other Dependencies
+```bash
+pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu118
+pip install -r requirements.txt
+```
+### Enabling Bidirectional SSM Processing
+To integrate the modifications for supporting bidirectional processing, copy the `mamba_ssm` folder to the `site-packages` directory of the Python installation within the Conda environment. This folder is directly borrowed from the [ViM](https://github.com/hustvl/Vim) repository. 
+```bash
+cp -rf vim-mamba_ssm/mamba_ssm $CONDA_PREFIX/lib/python3.10/site-packages
+```
 
 ## Inference
 An example notebook for inference is provided in the ``examples/inference`` directory. The notebook demonstrates a minimal example of how to load a trained model and perform inference on a sample audio file.
