@@ -127,7 +127,7 @@ class Mamba(nn.Module):
         self.D._no_weight_decay = True
 
         # bidirectional
-        if bimamba_type == "v1" or bimamba_type == "v1_b":
+        if bimamba_type == "v1":
             A_b = repeat(
                 torch.arange(1, self.d_state + 1, dtype=torch.float32, device=device),
                 "n -> d n",
@@ -136,7 +136,7 @@ class Mamba(nn.Module):
             A_b_log = torch.log(A_b)  # Keep A_b_log in fp32
             self.A_b_log = nn.Parameter(A_b_log)
             self.A_b_log._no_weight_decay = True
-        elif bimamba_type == "v2" or bimamba_type == "v1_2":
+        elif bimamba_type == "v2":
             A_b = repeat(
                 torch.arange(1, self.d_state + 1, dtype=torch.float32, device=device),
                 "n -> d n",
@@ -211,25 +211,6 @@ class Mamba(nn.Module):
                     delta_bias=self.dt_proj.bias.float(),
                     delta_softplus=True,
                 )    
-            elif self.bimamba_type == "v1_b":
-                A_b = -torch.exp(self.A_b_log.float())
-                out = bimamba_inner_fn(
-                    xz.flip([-1]),
-                    self.conv1d.weight,
-                    self.conv1d.bias,
-                    self.x_proj.weight,
-                    self.dt_proj.weight,
-                    self.out_proj.weight,
-                    self.out_proj.bias,
-                    A,
-                    A_b,
-                    None,  # input-dependent B
-                    None,  # input-dependent C
-                    self.D.float(),
-                    delta_bias=self.dt_proj.bias.float(),
-                    delta_softplus=True,
-                )
-                out = out.flip([-1])
             elif self.bimamba_type == "v2":
                 A_b = -torch.exp(self.A_b_log.float())
                 out = mamba_inner_fn_no_out_proj(
@@ -263,39 +244,7 @@ class Mamba(nn.Module):
                     out = F.linear(rearrange(out + out_b.flip([-1]), "b d l -> b l d"), self.out_proj.weight, self.out_proj.bias)
                 else:
                     out = F.linear(rearrange(out + out_b.flip([-1]), "b d l -> b l d") / 2, self.out_proj.weight, self.out_proj.bias)
-            elif self.bimamba_type == "v1_2":
-                A_b = -torch.exp(self.A_b_log.float())
-                out = mamba_inner_fn_no_out_proj(
-                    xz,
-                    self.conv1d.weight,
-                    self.conv1d.bias,
-                    self.x_proj.weight,
-                    self.dt_proj.weight,
-                    A,
-                    None,  # input-dependent B
-                    None,  # input-dependent C
-                    self.D.float(),
-                    delta_bias=self.dt_proj.bias.float(),
-                    delta_softplus=True,
-                )
-                out_b = mamba_inner_fn_no_out_proj(
-                    xz,
-                    self.conv1d_b.weight,
-                    self.conv1d_b.bias,
-                    self.x_proj_b.weight,
-                    self.dt_proj_b.weight,
-                    A_b,
-                    None,
-                    None,
-                    self.D_b.float(),
-                    delta_bias=self.dt_proj_b.bias.float(),
-                    delta_softplus=True,
-                )
-                # F.linear(rearrange(out_z, "b d l -> b l d"), out_proj_weight, out_proj_bias)
-                if not self.if_devide_out:
-                    out = F.linear(rearrange(out + out_b, "b d l -> b l d"), self.out_proj.weight, self.out_proj.bias)
-                else:
-                    out = F.linear(rearrange(out + out_b, "b d l -> b l d") / 2, self.out_proj.weight, self.out_proj.bias)
+
             else:
                 out = mamba_inner_fn(
                     xz,

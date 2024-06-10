@@ -1,2 +1,0 @@
-causal_conv1d
-causal_conv1d_cuda
