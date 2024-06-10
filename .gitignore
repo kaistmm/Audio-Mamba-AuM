@@ -3,7 +3,7 @@
 *.pyc
 *.DS_Store
 .idea
-pretrained_models/*
+pretrained_models/
 mamba/build/*
 mamba/selective_scan_cuda.cpython-310-x86_64-linux-gnu.so
 causal-conv1d/build/*
