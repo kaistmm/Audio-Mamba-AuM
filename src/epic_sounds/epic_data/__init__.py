@@ -3,4 +3,3 @@
 
 from .build import DATASET_REGISTRY, build_dataset  # noqa
 from .epicsounds import Epicsounds
-from .epicsounds_flexi import Epicsounds_flexi

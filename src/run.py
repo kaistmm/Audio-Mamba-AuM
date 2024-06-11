@@ -97,8 +97,8 @@ parser.add_argument("--aum_pretrain_tstride", type=int, default=16, help="pretra
 parser.add_argument("--pt_seq_lenf", type=int, default=None, help="pretrain sequence length in the frequency axis for the rope embeddings")
 parser.add_argument("--pt_seq_lent", type=int, default=None, help="pretrain sequence length in the time axis for the rope embeddings")
 parser.add_argument("--bilinear_rope", type=ast.literal_eval, default='False', help="interpolate the rope embeddings")
-parser.add_argument("--if_continue_inf", type=ast.literal_eval, default='True', help="if continue training when inf") # NOTE: For now, lets keep them false
-parser.add_argument("--if_nan2num", type=ast.literal_eval, default='True', help="if nan to num") # NOTE: For now, lets keep them false
+parser.add_argument("--if_continue_inf", type=ast.literal_eval, default='True', help="if continue training when inf")
+parser.add_argument("--if_nan2num", type=ast.literal_eval, default='True', help="if nan to num")
 parser.add_argument("--if_random_cls_token_position", type=ast.literal_eval, default='False', help="if random cls token position") # NOTE: For now, lets keep them false
 parser.add_argument("--if_random_token_rank", type=ast.literal_eval, default='False', help="if random token rank") # NOTE: For now, lets keep them false
 parser.add_argument("--run_type", type=str, default='train', help="run type", choices=["train", "eval", "wa_eval"])
@@ -132,14 +132,17 @@ args = parser.parse_args()
 args.flexible_patch_sizes = list(range(args.flexible_p_start, args.flexible_p_end , args.flexible_p_step))
 
 if args.dataset == 'epic_sounds':
-    config_yaml = '/home/mhamza/Audio-Mamba-AuM/src/epic_sounds/epic_data/config.yaml' #TODO: Make it a relative path
+    config_yaml = '../../src/epic_sounds/epic_data/config.yaml'
     with open(config_yaml, 'r') as f:
         cfg_dict = yaml.safe_load(f)
     
     cfg = CfgNode(cfg_dict)
 
+    # overwrite parts of the config with the arguments
     cfg.T_MASK = int(args.timem * args.audio_length/1024)
     cfg.F_MASK = args.freqm
+    cfg.TEST.BATCH_SIZE = args.batch_size * 2
+    cfg.TRAIN.BATCH_SIZE = args.batch_size
     cfg.AUDIO_DATA.CLIP_SECS=int(args.audio_length/100)
     cfg.AUDIO_DATA.NUM_FRAMES = args.audio_length
     cfg.T_WARP = 5

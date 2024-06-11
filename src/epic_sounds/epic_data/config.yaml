@@ -7,181 +7,36 @@ AUDIO_DATA:
   NUM_FREQUENCIES: 128
   SAMPLING_RATE: 24000
   WINDOW_LENGTH: 10
-BN:
-  FREEZE: false
-  NORM_TYPE: batchnorm
-  NUM_BATCHES_PRECISE: 200
-  NUM_SPLITS: 1
-  NUM_SYNC_DEVICES: 1
-  USE_PRECISE_STATS: false
-  WEIGHT_DECAY: 0.0
-DATA:
-  PATH_LABEL_SEPARATOR: ' '
-  PATH_PREFIX: ''
-  PATH_TO_DATA_DIR: ''
 DATA_LOADER:
   NUM_WORKERS: 16
   PIN_MEMORY: true
-DIST_BACKEND: nccl
 EPICSOUNDS:
   ANNOTATIONS_DIR: /mnt/lynx1/datasets/Epic-hdf5/annotations
   AUDIO_DATA_FILE: /mnt/lynx1/datasets/Epic-hdf5/EPIC-KITCHENS-100_audio.hdf5
   TEST_LIST: EPIC_Sounds_validation.pkl
   TRAIN_LIST: EPIC_Sounds_train.pkl
   VAL_LIST: EPIC_Sounds_validation.pkl
-FIND_UNUSED_PARAMETERS: true
-LOG_MODEL_INFO: true
-LOG_PERIOD: 10
 MIXUP:
   ALPHA: 0.2
   ENABLE: false
 MODEL:
-  ARCH: ssast
-  DROPCONNECT_RATE: 0.0
-  DROPOUT_RATE: 0.5
-  FC_INIT_STD: 0.01
-  FREEZE_BACKBONE: false
-  HEAD_ACT: softmax
-  LOSS_FUNC: cross_entropy
-  LOSS_REDUCTION: mean
-  MODEL_NAME: SSASTModel
+  ARCH: aum
   MULTI_PATHWAY_ARCH:
   - slowfast
-  NUM_CLASSES:
-  - 44
   SINGLE_PATHWAY_ARCH:
-  - ssast
-NONLOCAL:
-  GROUP:
-  - - 1
-  - - 1
-  - - 1
-  - - 1
-  INSTANTIATION: dot_product
-  LOCATION:
-  - - []
-  - - []
-  - - []
-  - - []
-  POOL:
-  - - - 1
-      - 2
-      - 2
-    - - 1
-      - 2
-      - 2
-  - - - 1
-      - 2
-      - 2
-    - - 1
-      - 2
-      - 2
-  - - - 1
-      - 2
-      - 2
-    - - 1
-      - 2
-      - 2
-  - - - 1
-      - 2
-      - 2
-    - - 1
-      - 2
-      - 2
+  - ast
+  - aum
 NUM_GPUS: 1
-NUM_SHARDS: 1
-OUTPUT_DIR: /mnt/bear1/users/fj/FlexiAST_V2/flexiast2/epic-sound/offcial-debug
-RESNET:
-  DEPTH: 50
-  INPLACE_RELU: true
-  NUM_BLOCK_TEMP_KERNEL:
-  - - 3
-  - - 4
-  - - 6
-  - - 3
-  NUM_GROUPS: 1
-  SPATIAL_DILATIONS:
-  - - 1
-  - - 1
-  - - 1
-  - - 1
-  SPATIAL_STRIDES:
-  - - 1
-  - - 2
-  - - 2
-  - - 2
-  STRIDE_1X1: false
-  TRANS_FUNC: bottleneck_transform
-  WIDTH_PER_GROUP: 64
-  ZERO_INIT_FINAL_BN: false
-RNG_SEED: 0
 SHARD_ID: 0
 SLOWFAST:
   ALPHA: 8
   BETA_INV: 8
   FUSION_CONV_CHANNEL_RATIO: 2
   FUSION_KERNEL_SZ: 5
-SOLVER:
-  BASE_LR: 0.0001
-  BASE_LR_SCALE_NUM_SHARDS: false
-  BETAS:
-  - 0.9
-  - 0.999
-  COSINE_END_LR: 0.0
-  DAMPENING: 0.0
-  GAMMA: 0.1
-  LINEAR_END_LR: 0.0
-  LRS:
-  - 1
-  - 0.05
-  - 0.01
-  LR_POLICY: steps_with_relative_lrs
-  MAX_EPOCH: 30
-  MOMENTUM: 0.9
-  NESTEROV: true
-  OPTIMIZING_METHOD: adamw
-  STEPS:
-  - 0
-  - 10
-  - 20
-  STEP_SIZE: 1
-  WARMUP_EPOCHS: 2.0
-  WARMUP_FACTOR: 0.1
-  WARMUP_POLICY: null
-  WARMUP_START_LR: 1.0e-06
-  WEIGHT_DECAY: 0.0001
-SSAST:
-  CLUSTER: true
-  FSHAPE: 16
-  FSTRIDE: 16
-  MASK_PATCH: 400
-  MODEL_SIZE: base
-  PRETRAIN_STAGE: true
-  TASK: ft_cls
-  TSHAPE: 16
-  TSTRIDE: 16
 TEST:
   BATCH_SIZE: 12
-  CHECKPOINT_FILE_PATH: ''
-  CHECKPOINT_TYPE: pytorch
   DATASET: EpicSounds
-  ENABLE: false
   NUM_ENSEMBLE_VIEWS: 5
-  SAVE_RESULTS_PATH: ''
 TRAIN:
-  AUTO_RESUME: true
-  BATCH_SIZE: 12
-  CHECKPOINT_CLEAR_NAME_PATTERN:
-  - module.
-  CHECKPOINT_EPOCH_RESET: true
-  CHECKPOINT_FILE_PATH: /home/jfeng/FJ/FlexiAST_V2/egs/SSAST-Base-Patch-400.pth
-  CHECKPOINT_INFLATE: false
-  CHECKPOINT_PERIOD: 1
-  CHECKPOINT_TYPE: pytorch
+  BATCH_SIZE: 24
   DATASET: EpicSounds
-  ENABLE: true
-  EVAL_PERIOD: 2
-  START_EPOCH: 0
-WANDB:
-  ENABLE: false
-  RUN_ID: ''
