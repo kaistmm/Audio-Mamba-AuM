@@ -1,0 +1,13 @@
+{
+    "data": [
+        {
+            "wav": "/mnt/datasets/voxcelebs/voxceleb1/id10003/tCq2LcKO6xY/00002.wav",
+            "labels": "/m/voxclb0003"
+        },
+        {
+            "wav": "/mnt/datasets/voxcelebs/voxceleb1/id10003/K5zRxtXc27s/00001.wav",
+            "labels": "/m/voxclb0003"
+        },
+        ...
+    ]
+}

@@ -1,0 +1,13 @@
+{
+    "data": [
+        {
+            "wav": "/mnt/datasets/VGGSound_final/audio/OxPnZzn1_L8_000883.wav",
+            "labels": "/m/vggsd264"
+        },
+        {
+            "wav": "/mnt/datasets/VGGSound_final/audio/snh7E7llb48_000070.wav",
+            "labels": "/m/vggsd192"
+        },
+        ...
+    ]
+}

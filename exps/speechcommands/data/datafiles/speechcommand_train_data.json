@@ -1,0 +1,13 @@
+{
+ "data": [
+  {
+   "wav": "/home/mhamza/Audio-Mamba-AuM/exps/speechcommands/data/speech_commands_v0.02/eight/1b88bf70_nohash_0.wav",
+   "labels": "/m/spcmd13"
+  },
+  {
+   "wav": "/home/mhamza/Audio-Mamba-AuM/exps/speechcommands/data/speech_commands_v0.02/eight/b12bef84_nohash_1.wav",
+   "labels": "/m/spcmd13"
+  },
+  ...
+ ]
+}

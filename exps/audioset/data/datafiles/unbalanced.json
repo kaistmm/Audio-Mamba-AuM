@@ -1,0 +1,13 @@
+{
+    "data": [
+        {
+            "wav": "/mnt/lynx1/datasets/audioset/unbalanced_train_segments/audio/h-4pNWWC9VI_30000_40000.flac",
+            "labels": "/m/09x0r"
+        },
+        {
+            "wav": "/mnt/lynx1/datasets/audioset/unbalanced_train_segments/audio/EFGf86-Ubf0_8000_18000.flac",
+            "labels": "/m/09x0r"
+        },
+        ...
+    ]
+}

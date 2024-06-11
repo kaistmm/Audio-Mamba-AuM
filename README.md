@@ -8,6 +8,7 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 ⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
 
 ## News
+- ``11 June 2024`` Training scripts released (Except Epic-Sounds)!
 - ``10 June 2024`` Setup guide released!
 - ``07 June 2024`` Code released! (Initial release — further setup and cleaning in progress.)
 - ``06 June 2024`` Checkpoints released!
@@ -47,6 +48,30 @@ cp -rf vim-mamba_ssm/mamba_ssm $CONDA_PREFIX/lib/python3.10/site-packages
 
 ## Inference
 An example notebook for inference is provided in the ``examples/inference`` directory. The notebook demonstrates a minimal example of how to load a trained model and perform inference on a sample audio file.
+
+## Training
+
+### Overview
+Each dataset's training scripts and relevant files are located within their respective folders under the `exps/` directory. These folders include:
+
+- **Bash files**: Represent configurations for various experiments conducted with the dataset.
+- **Data folder**: May include example train/test splits, dataset label information, and data sampling weights.
+
+### Executing Training Scripts
+To execute the training scripts:
+
+1. **Navigate** to the dataset's directory (e.g., `exps/vggsound/`).
+2. **Run** the corresponding script (e.g., `bash aum-base_scratch-vggsound.sh`).
+
+> **Note**: The scripts are prepared for execution but require modification of paths (such as experiment directories) to fit your specific setup.
+
+### Multiple GPU Training
+For training on multiple GPUs:
+
+1. **Set GPU IDs**: List the GPU IDs in the `CUDA_VISIBLE_DEVICES` environment variable (e.g., `CUDA_VISIBLE_DEVICES=0,1,2,...`).
+2. **Adjust Batch Size**: Set the `batch_size` argument in the script to the desired batch size per GPU.
+
+> To maintain the effective batch size from single GPU training, divide the batch size by the number of GPUs.
 
 ## Model Checkpoints
 The model checkpoints are available for the following experiments:

@@ -1,0 +1,13 @@
+{
+ "data": [
+  {
+   "wav": "/mnt/lynx1/datasets/audioset/balanced_train_segments/audio/4Xi6F2jAlAE_160000_170000.flac",
+   "labels": "/m/04rlf,/m/0fd3y"
+  },
+  {
+   "wav": "/mnt/lynx1/datasets/audioset/balanced_train_segments/audio/A437a4Y_xag_230000_240000.flac",
+   "labels": "/m/02mfyn"
+  },
+  ...
+ ]
+}
