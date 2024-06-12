@@ -8,7 +8,7 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 ⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
 
 ## News
-- ``11 June 2024`` Training scripts released (Except Epic-Sounds)!
+- ``11 June 2024`` Training scripts released!
 - ``10 June 2024`` Setup guide released!
 - ``07 June 2024`` Code released! (Initial release — further setup and cleaning in progress.)
 - ``06 June 2024`` Checkpoints released!
