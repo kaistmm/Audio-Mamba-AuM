@@ -114,7 +114,7 @@ def _log_specgram(
     mel_basis = filters.mel(
                         sr=cfg.AUDIO_DATA.SAMPLING_RATE,
                         n_fft=2048,
-                        n_mels=128,
+                        n_mels=cfg.AUDIO_DATA.NUM_FREQUENCIES,
                         htk=True,
                         norm=None
                     )

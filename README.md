@@ -8,6 +8,7 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 ⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
 
 ## News
+- ``16 June 2024`` Added more details for EPIC-SOUNDS!
 - ``11 June 2024`` Training scripts released!
 - ``10 June 2024`` Setup guide released!
 - ``07 June 2024`` Code released! (Initial release — further setup and cleaning in progress.)
@@ -47,7 +48,7 @@ cp -rf vim-mamba_ssm/mamba_ssm $CONDA_PREFIX/lib/python3.10/site-packages
 ```
 
 ## Inference
-An example notebook for inference is provided in the ``examples/inference`` directory. The notebook demonstrates a minimal example of how to load a trained model and perform inference on a sample audio file.
+An example notebook for inference is provided in the `examples/inference` directory. The notebook demonstrates a minimal example of how to load a trained model and perform inference on a sample audio file.
 
 ## Training
 
@@ -55,7 +56,7 @@ An example notebook for inference is provided in the ``examples/inference`` dire
 Each dataset's training scripts and relevant files are located within their respective folders under the `exps/` directory. These folders include:
 
 - **Bash files**: Represent configurations for various experiments conducted with the dataset.
-- **Data folder**: May include example train/test splits, dataset label information, and data sampling weights.
+- **Data folder** (except for EPIC-SOUNDS): May include example train/test splits, dataset label information, and data sampling weights.
 
 ### Executing Training Scripts
 To execute the training scripts:
@@ -71,13 +72,21 @@ For training on multiple GPUs:
 1. **Set GPU IDs**: List the GPU IDs in the `CUDA_VISIBLE_DEVICES` environment variable (e.g., `CUDA_VISIBLE_DEVICES=0,1,2,...`).
 2. **Adjust Batch Size**: Set the `batch_size` argument in the script to the desired batch size per GPU.
 
-> To maintain the effective batch size from single GPU training, divide the batch size by the number of GPUs.
+> **Note**: To maintain the effective batch size from single GPU training, divide the batch size by the number of GPUs.
+
+### EPIC-SOUNDS Dataset
+The EPIC-SOUNDS dataset has a distinct training structure:
+
+- **No data folder**: The `epic-sounds/` directory contains only training scripts.
+- **Config File**: Additional setup details are available in the `config_default.yaml` file located at `src/epic_sounds/epic_data/` directory. This file includes paths to the dataset folder, training splits, and other relevant default settings (please modify several of these variables according to your setup). Inside `run.py` file, some of the variables from this config file are overriden by the command line arguments. 
+
+For the full reference regarding this dataset, please refer to the [EPIC-SOUNDS repository](https://github.com/epic-kitchens/epic-sounds-annotations). 
 
 ## Model Checkpoints
 The model checkpoints are available for the following experiments:
 
 ### Base Scratch
-These are the checkpoints for the base models with the variant Fo-Bi (b), trained from scratch.
+These are the checkpoints for the base models with the variant `Fo-Bi (b)`, trained from scratch.
 | Dataset                  | #Params | Performance | Checkpoint |
 |--------------------------|:---------:|:-------------:|:------------:|
 | Audioset (mAP)           | 92.1M   | 32.74       | [Link](https://drive.google.com/file/d/1QgnyvGYxKd-q6twXf4i05jZA5xFIFs8j/view?usp=drive_link) |
@@ -89,7 +98,7 @@ These are the checkpoints for the base models with the variant Fo-Bi (b), traine
 
 
 ### Small ImageNet
-These are the checkpoints for the small models with the variant Bi-Bi (c), initialized with ImageNet pretrained weights.
+These are the checkpoints for the small models with the variant `Bi-Bi (c)`, initialized with ImageNet pretrained weights.
 | Dataset | #Params | Performance | Checkpoint |
 |---------|:---------:|:-------------:|:------------:|
 | Audioset (mAP) | 25.5M | 39.74 |           [Link](https://drive.google.com/file/d/1z-JdZTy52gW7RzhiTQozn6Ly2W4DOs9b/view?usp=drive_link) |
@@ -100,7 +109,7 @@ These are the checkpoints for the small models with the variant Bi-Bi (c), initi
 | Epic Sounds (Acc) | 25.4M | 52.69 |        [Link](https://drive.google.com/file/d/1my_kS9COIHGsx4axx8bapN7RBDvp06cK/view?usp=drive_link) |
 
 ### Base AudioSet
-These are the checkpoints for the base models with the variant Fo-Bi (b), initialized with AudioSet pretrained weights.
+These are the checkpoints for the base models with the variant `Fo-Bi (b)`, initialized with AudioSet pretrained weights.
 
 | Dataset | #Params | Performance | Checkpoint |
 |---------|:---------:|:-------------:|:------------:|

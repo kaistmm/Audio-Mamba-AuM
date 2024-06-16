@@ -1,42 +1,40 @@
 AUDIO_DATA:
-  CLIP_SECS: 1.999
+  CLIP_SECS: 10
   HOP_LENGTH: 5
-  INPUT_CHANNEL_NUM:
-  - 1
   NUM_FRAMES: 1024
   NUM_FREQUENCIES: 128
   SAMPLING_RATE: 24000
   WINDOW_LENGTH: 10
 DATA_LOADER:
-  NUM_WORKERS: 16
+  NUM_WORKERS: 4
   PIN_MEMORY: true
 EPICSOUNDS:
-  ANNOTATIONS_DIR: /mnt/lynx1/datasets/Epic-hdf5/annotations
-  AUDIO_DATA_FILE: /mnt/lynx1/datasets/Epic-hdf5/EPIC-KITCHENS-100_audio.hdf5
+  ANNOTATIONS_DIR: /mnt/lynx1/datasets/Epic-hdf5/annotations # modify according to yours
+  AUDIO_DATA_FILE: /mnt/lynx1/datasets/Epic-hdf5/EPIC-KITCHENS-100_audio.hdf5 # modify according to yours
   TEST_LIST: EPIC_Sounds_validation.pkl
   TRAIN_LIST: EPIC_Sounds_train.pkl
   VAL_LIST: EPIC_Sounds_validation.pkl
-MIXUP:
-  ALPHA: 0.2
-  ENABLE: false
 MODEL:
   ARCH: aum
-  MULTI_PATHWAY_ARCH:
+  MULTI_PATHWAY_ARCH: # not used
   - slowfast
   SINGLE_PATHWAY_ARCH:
   - ast
   - aum
-NUM_GPUS: 1
-SHARD_ID: 0
-SLOWFAST:
+NUM_GPUS: 1 # not used, keep 1
+SHARD_ID: 0 # not used
+T_MASK: 192
+F_MASK: 48
+T_WARP: 5
+SLOWFAST: # not used
   ALPHA: 8
   BETA_INV: 8
   FUSION_CONV_CHANNEL_RATIO: 2
   FUSION_KERNEL_SZ: 5
 TEST:
-  BATCH_SIZE: 12
+  BATCH_SIZE: 24
   DATASET: EpicSounds
   NUM_ENSEMBLE_VIEWS: 5
 TRAIN:
-  BATCH_SIZE: 24
+  BATCH_SIZE: 12
   DATASET: EpicSounds

@@ -48,7 +48,7 @@ parser.add_argument("--exp-dir", type=str, default="", help="directory to dump e
 parser.add_argument('--lr', '--learning-rate', default=0.001, type=float, metavar='LR', help='initial learning rate')
 parser.add_argument("--optim", type=str, default="adam", help="training optimizer", choices=["sgd", "adam"])
 parser.add_argument('-b', '--batch-size', default=12, type=int, metavar='N', help='mini-batch size')
-parser.add_argument('-w', '--num-workers', default=4, type=int, metavar='NW', help='# of workers for dataloading (default: 32)')
+parser.add_argument('-w', '--num-workers', default=4, type=int, metavar='NW', help='# of workers for dataloading')
 parser.add_argument("--n-epochs", type=int, default=1, help="number of maximum training epochs")
 # not used in the formal experiments
 parser.add_argument("--lr_patience", type=int, default=2, help="how many epoch to wait to reduce lr if mAP doesn't improve")
@@ -132,7 +132,7 @@ args = parser.parse_args()
 args.flexible_patch_sizes = list(range(args.flexible_p_start, args.flexible_p_end , args.flexible_p_step))
 
 if args.dataset == 'epic_sounds':
-    config_yaml = '../../src/epic_sounds/epic_data/config.yaml'
+    config_yaml = '../../src/epic_sounds/epic_data/config_default.yaml'
     with open(config_yaml, 'r') as f:
         cfg_dict = yaml.safe_load(f)
     
@@ -146,8 +146,7 @@ if args.dataset == 'epic_sounds':
     cfg.AUDIO_DATA.CLIP_SECS=int(args.audio_length/100)
     cfg.AUDIO_DATA.NUM_FRAMES = args.audio_length
     cfg.T_WARP = 5
-
-    # cfg.DATA_LOADER.NUM_WORKERS = args.num_workers
+    cfg.DATA_LOADER.NUM_WORKERS = args.num_workers
 
     train_loader = loader.construct_loader(cfg, "train")
     val_loader = loader.construct_loader(cfg, "val")
