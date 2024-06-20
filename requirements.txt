@@ -13,5 +13,6 @@ timm==0.4.12
 tqdm==4.66.1
 transformers==4.35.2
 wget==3.2
+packaging==24.1
 causal_conv1d==1.1.3.post1
 mamba_ssm==1.1.3.post1

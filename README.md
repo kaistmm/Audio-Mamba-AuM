@@ -34,7 +34,11 @@ conda activate aum
 ```bash
 conda install nvidia/label/cuda-11.8.0::cuda-nvcc
 conda install nvidia/label/cuda-11.8.0::cuda
+
+Try: 
 conda install anaconda::cudnn
+Else:
+conda install -c conda-forge cudnn
 ```
 ### Installing PyTorch and Other Dependencies
 ```bash
