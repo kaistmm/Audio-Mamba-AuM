@@ -45,6 +45,10 @@ conda install -c conda-forge cudnn
 pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu118
 pip install -r requirements.txt
 ```
+### Installing Mamba Related Packages
+```bash
+pip install causal_conv1d==1.1.3.post1 mamba_ssm==1.1.3.post1
+```
 ### Enabling Bidirectional SSM Processing
 To integrate the modifications for supporting bidirectional processing, copy the `mamba_ssm` folder to the `site-packages` directory of the Python installation within the Conda environment. This folder is directly borrowed from the [ViM](https://github.com/hustvl/Vim) repository. 
 ```bash
