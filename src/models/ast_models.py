@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# Modified version of the following file:
 # @Time    : 6/10/21 5:04 PM
 # @Author  : Yuan Gong
 # @Affiliation  : Massachusetts Institute of Technology
@@ -44,9 +45,7 @@ class ASTModel(nn.Module):
     :param audioset_pretrain: if use full AudioSet and ImageNet pretrained model
     """
     def __init__(self, label_dim=527, fstride=10, tstride=10, input_fdim=128, input_tdim=1024, imagenet_pretrain=True, model_name='deit_base_distilled_patch16_384', verbose=True, _num_patches=None, 
-                 ast_pretrain=False, ast_pretrain_path=None, ast_label_dim=527, ast_fstride=16, ast_tstride=16, ast_input_fdim=128, ast_input_tdim=1024, ast_model_name=None, load_backbone_only=False, must_square=False):
-
-        # TODO: Implement must square if needed
+                 ast_pretrain=False, ast_pretrain_path=None, ast_label_dim=527, ast_fstride=16, ast_tstride=16, ast_input_fdim=128, ast_input_tdim=1024, ast_model_name=None, load_backbone_only=False):
 
         super(ASTModel, self).__init__()
         # assert timm.__version__ == '0.4.5', 'Please use timm == 0.4.5, the code might not be compatible with newer versions.'
@@ -54,8 +53,6 @@ class ASTModel(nn.Module):
         if verbose == True:
             print('---------------AST Model Summary---------------')
             print('ImageNet pretraining: {:s}, AST pretraining: {:s}'.format(str(imagenet_pretrain),str(ast_pretrain)))
-        # override timm input shape restriction
-        # timm.models.vision_transformer.PatchEmbed = PatchEmbed
 
         if 'distilled' in model_name:
             self.distilled = 1
@@ -65,20 +62,13 @@ class ASTModel(nn.Module):
         # if AudioSet pretraining is not used (but ImageNet pretraining may still apply)
         if ast_pretrain == False:
             self.v = timm.create_model(model_name, pretrained=imagenet_pretrain, embed_layer=PatchEmbed)
-            # if model_name == 'tiny224':
-            #     self.v = timm.create_model('deit_tiny_distilled_patch16_224', pretrained=imagenet_pretrain, embed_layer=PatchEmbed)
-            # elif model_name == 'small224':
-            #     self.v = timm.create_model('deit_small_distilled_patch16_224', pretrained=imagenet_pretrain, embed_layer=PatchEmbed)
-            # elif model_name == 'base224':
-            #     self.v = timm.create_model('deit_base_distilled_patch16_224', pretrained=imagenet_pretrain, embed_layer=PatchEmbed)
-            # elif model_name == 'base384':
-            #     self.v = timm.create_model('deit_base_distilled_patch16_384', pretrained=imagenet_pretrain , embed_layer=PatchEmbed)
-            # else:
-            #     raise Exception('Model size must be one of tiny224, small224, base224, base384.')
             self.original_num_patches = self.v.patch_embed.num_patches
             self.oringal_hw = int(self.original_num_patches ** 0.5)
             self.original_embedding_dim = self.v.pos_embed.shape[2]
             self.mlp_head = nn.Sequential(nn.LayerNorm(self.original_embedding_dim), nn.Linear(self.original_embedding_dim, label_dim))
+            
+            # for accelerate multi-gpu training, delete the unused parameters
+            del self.v.head
 
             # automatcially get the intermediate shape
             f_dim, t_dim = self.get_shape(fstride, tstride, input_fdim, input_tdim)
@@ -142,7 +132,7 @@ class ASTModel(nn.Module):
                 for k, v in state_dict.items(): # Adjust the name of dict
                     if 'module.' in k:
                         out_dict[k[7:]] = v
-                    else:
+                    elif not 'v.head' in k: # skip loading the unused parameters
                         out_dict[k] = v
                 ast_model.load_state_dict(out_dict)
             
@@ -190,7 +180,6 @@ class ASTModel(nn.Module):
             # concatenate the above positional embedding with the cls token and distillation token of the deit model.
             self.v.pos_embed = nn.Parameter(torch.cat([self.v.pos_embed[:, :1 + self.distilled, :].detach(), new_pos_embed], dim=1))
             
-
     def get_shape(self, fstride, tstride, input_fdim=128, input_tdim=1024):
         test_input = torch.randn(1, 1, input_fdim, input_tdim)
         test_proj = nn.Conv2d(1, self.original_embedding_dim, kernel_size=(16, 16), stride=(fstride, tstride))
@@ -199,7 +188,7 @@ class ASTModel(nn.Module):
         t_dim = test_out.shape[3]
         return f_dim, t_dim
 
-    # @autocast()
+    # @autocast() # disabled because accelerate training configs already incorporate autocast
     def forward(self, x):
         """
         :param x: the input spectrogram, expected shape: (batch_size, time_frame_num, frequency_bins), e.g., (12, 1024, 128)
@@ -217,7 +206,7 @@ class ASTModel(nn.Module):
             x = torch.cat((cls_tokens, dist_token, x), dim=1)
         else:
             x = torch.cat((cls_tokens, x), dim=1)
-        if T * F != self.v.pos_embed.shape[1]:
+        if T * F // (16 * 16) != self.v.pos_embed.shape[1]:
             pos_embed = self.v.pos_embed[:, 1:, :]
             pos_embed = pos_embed.transpose(1, 2).reshape(1, self.original_embedding_dim, F // 16, -1)
             target_size = (F // 16, T // 16)
@@ -238,20 +227,3 @@ class ASTModel(nn.Module):
 
         x = self.mlp_head(x)
         return x
-
-if __name__ == '__main__':
-    input_tdim = 100
-    ast_mdl = ASTModel(input_tdim=input_tdim)
-    # input a batch of 10 spectrogram, each with 100 time frames and 128 frequency bins
-    test_input = torch.rand([10, input_tdim, 128])
-    test_output = ast_mdl(test_input)
-    # output should be in shape [10, 527], i.e., 10 samples, each with prediction of 527 classes.
-    print(test_output.shape)
-
-    input_tdim = 256
-    ast_mdl = ASTModel(input_tdim=input_tdim,label_dim=50, audioset_pretrain=True)
-    # input a batch of 10 spectrogram, each with 512 time frames and 128 frequency bins
-    test_input = torch.rand([10, input_tdim, 128])
-    test_output = ast_mdl(test_input)
-    # output should be in shape [10, 50], i.e., 10 samples, each with prediction of 50 classes.
-    print(test_output.shape)
