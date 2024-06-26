@@ -1,5 +1,5 @@
 import os
-os.environ['TORCHAUDIO_USE_SOX'] = '0'
+os.environ['TORCHAUDIO_USE_SOX'] = '0' # NOTE: had issues with the .flac extension (for audioset), so I disabled it, check if it works for you
 
 import csv
 import json
