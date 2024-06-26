@@ -1,3 +1,5 @@
+# This file modifies https://github.com/hustvl/Vim/blob/main/vim/models_mamba.py
+
 import sys, os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
@@ -10,14 +12,13 @@ from typing import Optional
 from timm.models.layers import trunc_normal_, lecun_normal_
 
 from timm.models.layers import DropPath
-from timm.models.vision_transformer import _load_weights
 
 import math
 
 from mamba_ssm.modules.mamba_simple import Mamba
 
 from src.utilities.rope import * 
-from src.utilities.tokenization import FlexiPatchEmbed, FlexiPosEmbed, PatchEmbed, resample_patch_embed, vanilla_resample_patch_embed
+from src.utilities.tokenization import FlexiPatchEmbed, FlexiPosEmbed, resample_patch_embed, vanilla_resample_patch_embed
 from torch.cuda.amp import autocast
 import random
 
@@ -199,8 +200,8 @@ class AudioMamba(nn.Module):
                  channels=1,
                  num_classes=527,
                  ssm_cfg=None, 
-                 drop_rate=0., # A
-                 drop_path_rate=0, # A
+                 drop_rate=0.,
+                 drop_path_rate=0,
                  norm_epsilon: float = 1e-5, 
                  rms_norm: bool = True,
                  initializer_cfg=None,
@@ -234,8 +235,6 @@ class AudioMamba(nn.Module):
                  use_middle_cls_token=True,
                  imagenet_load_double_cls_token=False,
                  imagenet_load_middle_cls_token=True,
-                 weird__target_size=None,
-                 must_square=False,
                  transpose_token_sequence=False,
                  use_end_cls_token=False,
                  use_PI_for_patch_embed=True,
@@ -267,22 +266,12 @@ class AudioMamba(nn.Module):
         self.ft_seq_len = ft_seq_len
         self.num_classes = num_classes
         self.d_model = self.num_features = self.embed_dim = embed_dim
-        self.weird__target_size = weird__target_size
-        self.must_square = must_square
         self.transpose_token_sequence = transpose_token_sequence
 
-        if must_square:
-            assert spectrogram_size[1] % spectrogram_size[0] == 0, "The spectrogram size must be a square"
-            dv = spectrogram_size[1] // spectrogram_size[0]
-            side = int(dv ** 0.5)
-            assert side ** 2 == dv, "The spectrogram size must be a square"
-            self.patch_grid_size = FlexiPosEmbed.get_shape(*strides, patch_size, spectrogram_size[0] * side, spectrogram_size[1] // side)
-        else:
-            self.patch_grid_size = FlexiPosEmbed.get_shape(*strides, patch_size, *spectrogram_size)
+        self.patch_grid_size = FlexiPosEmbed.get_shape(*strides, patch_size, *spectrogram_size)
         
         self.num_patches = self.patch_grid_size[0] * self.patch_grid_size[1]
         
-
         # TODO: Add a checker that looks at the patch size and spectrogram size to make sure they are compatible
 
         if if_cls_token:
@@ -299,10 +288,10 @@ class AudioMamba(nn.Module):
 
         # TODO: release this comment
         dpr = [x.item() for x in torch.linspace(0, drop_path_rate, depth)]  # stochastic depth decay rule
-        # import ipdb;ipdb.set_trace()
+        
         inter_dpr = [0.0] + dpr
         self.drop_path = DropPath(drop_path_rate) if drop_path_rate > 0. else nn.Identity()
-                # transformer blocks
+
         self.layers = nn.ModuleList(
             [
                 create_block(
@@ -374,7 +363,7 @@ class AudioMamba(nn.Module):
 
             # NOTE: This assumes that the imagenetpretrained model never relocates the positional embeddings of the cls tokens to the beginning
             # keeping them naturally at their corresponding positions
-            # NOTE: This assumes that we are always loading from the same cls token setting as the current model
+            # NOTE: This assumes that we are always loading from the same cls token setting (head, mid, end, double, ...) as the current model
             if imagenet_load_double_cls_token:
                 pos_embed_load = FlexiPosEmbed.insert_to_prefix(pos_embed_load, [0, pos_embed_load.shape[1] - 1])
             elif imagenet_load_middle_cls_token:
@@ -382,12 +371,12 @@ class AudioMamba(nn.Module):
                 N = pos_embed_load.shape[1] - 1 # This N represents the N in the forward pass
                 pos_embed_load = FlexiPosEmbed.insert_to_prefix(pos_embed_load, N//2)
             
+            # assuming a square shaped input was used for the imagenet pretrained model
             pos_grid_size_load = to_2tuple(int((weights['pos_embed.pos_embed'].shape[1] - self.num_tokens) ** 0.5))
 
-            if self.pt_hw_seq_len is None: # If this is None, then the vim model is trained from scratch
-                self.pt_hw_seq_len = to_2tuple(pos_grid_size_load)
-
             if if_rope:
+                if self.pt_hw_seq_len is None:
+                    self.pt_hw_seq_len = to_2tuple(pos_grid_size_load)
                 if bilinear_rope:
                     weights['rope.freqs_cos'] = self.interp_rope(weights['rope.freqs_cos'], pos_grid_size_load)
                     weights['rope.freqs_sin'] = self.interp_rope(weights['rope.freqs_sin'], pos_grid_size_load)
@@ -395,17 +384,19 @@ class AudioMamba(nn.Module):
                     del weights['rope.freqs_cos']
                     del weights['rope.freqs_sin']
 
+            # we already stored these in appropriate variables
             del weights['pos_embed.pos_embed']
             del weights['patch_embed.proj.weight']
             del weights['patch_embed.proj.bias']
+            # we only use as a backbone
             del weights['head.weight']
             del weights['head.bias']
 
-            print(self.load_state_dict(weights, strict=False))
+            print(self.load_state_dict(weights, strict=False)) # recommended to verify the loading through the message printed!
 
         if aum_pretrain:
             weights = torch.load(aum_pretrain_path, map_location='cpu')
-            # remove data parallel prefix
+            # remove data parallel prefix (if possibly exists)
             weights = {k.replace("module.", ""): v for k, v in weights.items()}
 
             proj_load = Namespace(
@@ -425,19 +416,20 @@ class AudioMamba(nn.Module):
 
             pos_embed_load = weights['pos_embed.pos_embed']
 
-            if must_square:
-                assert False, "Double check here"
-            for log_audio_length in range(6, 20):
+            # NOTE: This for loop assumes the model being loaded was trained with audio lengths 
+            # that are powers of 2 and 128 melbins. Using the given patch size/stride information,
+            # we iterate over possible audio lengths and interpolate the positional embeddings 
+            # for the appropriate length.
+            for log_audio_length in range(6, 20): 
                 pos_grid_size_load = FlexiPosEmbed.get_shape(*strides_load, patch_size_load, 128, 2**log_audio_length)
                 if pos_grid_size_load[0] * pos_grid_size_load[1] == pos_embed_load.shape[1] - self.num_tokens:
                     break
                 if log_audio_length == 19:
                     raise ValueError("Could not find matching audio length")
-            
-            if self.pt_hw_seq_len is None: # If the pt_hw_seq_len is None, the aum model we load from is trained from scratch
-                self.pt_hw_seq_len = to_2tuple(pos_grid_size_load)
-            
+                        
             if if_rope:
+                if self.pt_hw_seq_len is None:
+                    self.pt_hw_seq_len = to_2tuple(pos_grid_size_load)
                 if bilinear_rope:
                     weights['rope.freqs_cos'] = self.interp_rope(weights['rope.freqs_cos'], pos_grid_size_load)
                     weights['rope.freqs_sin'] = self.interp_rope(weights['rope.freqs_sin'], pos_grid_size_load)
@@ -445,6 +437,7 @@ class AudioMamba(nn.Module):
                     del weights['rope.freqs_cos']
                     del weights['rope.freqs_sin']
 
+            # we already stored these in appropriate variables
             del weights['pos_embed.pos_embed'] 
             del weights['patch_embed.proj.weight']
             del weights['patch_embed.proj.bias']
@@ -455,12 +448,12 @@ class AudioMamba(nn.Module):
                 del weights['head.weight']
                 del weights['head.bias']
 
-            print(self.load_state_dict(weights, strict=False))
+            print(self.load_state_dict(weights, strict=False)) # recommended to verify the loading through the message printed!
 
         if if_rope and not bilinear_rope: 
             self.init_rope()
 
-        self.patch_embed = FlexiPatchEmbed( # For now, let's use a simple patchembed module
+        self.patch_embed = FlexiPatchEmbed(
             patch_size=patch_size,
             strides=strides,
             in_chans=channels,
@@ -493,7 +486,7 @@ class AudioMamba(nn.Module):
     def init_rope(self):
         half_head_dim = self.embed_dim // 2
             
-        if self.pt_hw_seq_len is None: # If pt_hw_seq_len is None, then the model is being trained from scratch
+        if self.pt_hw_seq_len is None:
             self.pt_hw_seq_len = self.patch_grid_size
         
         self.rope = VisionRotaryEmbedding(
@@ -518,14 +511,6 @@ class AudioMamba(nn.Module):
         x = x.transpose(2, 3) # B x C=1 x F x T
 
         B, C, F, T = x.shape
-        
-        if self.must_square:
-            dv = T // F
-            x = x.reshape(B, C, F, dv, F)
-            x = x.transpose(2, 3) # B x C x dv x F x F
-            side = int(dv ** 0.5)
-            x = x.reshape(B, C, side, side, F, F)
-            x = x.permute(0, 1, 2, 4, 3, 5).reshape(B, C, side * F, side * F)
 
         x = self.patch_embed(x, patch_size=patch_size, strides=strides)
         B, N, _ = x.shape
@@ -552,11 +537,10 @@ class AudioMamba(nn.Module):
             token_position = None
 
         if self.if_abs_pos_embed:
-            x = self.pos_embed(x, token_position=token_position, target_size=self.weird__target_size, patch_size=patch_size, strides=strides)
+            x = self.pos_embed(x, token_position=token_position, patch_size=patch_size, strides=strides)
             x = self.pos_drop(x)
 
         if self.transpose_token_sequence:
-            # import ipdb; ipdb.set_trace()
             if self.if_cls_token:
                 if self.use_double_cls_token:
                     head_t, tail_t = x[:, 0, :].unsqueeze(1), x[:, -1, :].unsqueeze(1)
@@ -604,7 +588,6 @@ class AudioMamba(nn.Module):
             else:
                 print("new value: ", x[0, token_position, 0])
             print("new token_position: ", token_position)
-
 
 
         if_flip_img_sequences = False
@@ -691,7 +674,7 @@ class AudioMamba(nn.Module):
         else:
             raise NotImplementedError
 
-    # @autocast()
+    # @autocast() # disabled because accelerate training configs already incorporate autocast
     def forward(self, x, return_features=False, inference_params=None, if_random_cls_token_position=False, if_random_token_rank=False, patch_size=None, strides=None): # NOTE: For now, these are all being used as default. Later, these could be set through the args param
         x = self.forward_features(x, inference_params, if_random_cls_token_position=if_random_cls_token_position, if_random_token_rank=if_random_token_rank, patch_size=patch_size, strides=strides)
         if return_features:
