@@ -176,52 +176,6 @@ def get_shape(fstride, tstride, patch_size, input_fdim=128, input_tdim=1024):
     t_dim = test_out.shape[3]
     return [f_dim, t_dim]
 
-def resize_weights(weights,ori_patch,new_patch,methods,t_length,s_length):
-    """This funtion is different with change_model, which is to transfer the original weights to target shape
-    so that it can be loaded by another new model with different patch size. It means the model should keep the dimension the same.
-    """
-    # Fristly, deal with the pos_embed.
-    pos_emb = weights["module.v.pos_embed"] # [1, 513, 768]
-    ori_size = get_shape(ori_patch,ori_patch,ori_patch,input_tdim=t_length)
-    new_size = get_shape(new_patch,new_patch,new_patch,input_tdim=s_length)
-    # import ipdb;ipdb.set_trace()
-    pos_emb = resample_abs_pos_embed(pos_emb,
-                        new_size=new_size,
-                        old_size=ori_size,
-                        num_prefix_tokens=1,
-                        verbose=True)
-    weights["module.v.pos_embed"] = pos_emb
-
-
-    p_weight = weights["module.v.patch_embed.proj.weight"]
-    if methods == "PI":
-        print("Use PI Resize")
-        weights["module.v.patch_embed.proj.weight"] = resample_patch_embed(p_weight,(new_patch,new_patch))
-    elif methods == "BL":
-        print("Use Bilinear Resize")
-        weights["module.v.patch_embed.proj.weight"] = vanilla_resample_patch_embed(p_weight,(new_patch,new_patch))
-
-    return weights
-
-def load_for_distill(ori_weights,student,teacher,s_patch,t_patch,methods,initial=True, model='ast'):
-    out_dict = {}
-    if methods != "SC" and model == 'ast':
-        resized_weights = resize_weights(copy.deepcopy(ori_weights),t_patch,s_patch,methods) # should transform teacher's params for student to load
-        for k, v in resized_weights.items(): # Adjust the name of dict
-            out_dict[k[7:]] = v
-        student.load_state_dict(out_dict)
-    else:
-        if model == 'flexiast':
-            print('Distill flexi ast model')
-        else:
-            print("Distill student from scratch")
-
-    out_dict = {}
-    for k, v in ori_weights.items(): # Adjust the name of dict
-        out_dict[k[7:]] = v
-    teacher.load_state_dict(out_dict)
-    return student,teacher
-
 class PatchEmbed(nn.Module):
     def __init__(
         self,
@@ -457,28 +411,13 @@ class FlexiPosEmbed(nn.Module):
             ], dim=1)
         return x
 
-    def forward(self, x, patch_size=None, strides=None, token_position=None, target_size=None):
+    def forward(self, x, patch_size=None, strides=None, token_position=None):
         
         if token_position is not None:
             x = FlexiPosEmbed.insert_to_prefix(x, from_poses=token_position)
 
-        if patch_size is None and strides is None and target_size is None:
+        if patch_size is None and strides is None:
             x = x + self.pos_embed
-        elif target_size is not None:
-            forward_pos_embed = resample_abs_pos_embed(
-                self.pos_embed,
-                new_size=target_size,
-                old_size=self.pos_grid_size, 
-                num_prefix_tokens=self.n_prefix_tokens,
-                pos_embed_prefix=self.pos_embed_prefix
-            )
-            if not self.pos_embed_prefix:
-                final_patches = (
-                    x[:, :self.n_prefix_tokens], (x[:, self.n_prefix_tokens:] + forward_pos_embed)
-                )
-                x = torch.cat(final_patches, dim=1)
-            else:
-                x = x + forward_pos_embed
         else:
             if patch_size is None:
                 patch_size = self.patch_size
