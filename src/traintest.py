@@ -61,7 +61,7 @@ def train(audio_model, train_loader, test_loader, args):
     warmup = args.warmup
     
     if args.dataset == 'epic_sounds':
-        def epic_lr_schedule(epoch): # TODO: Change this if needed
+        def epic_lr_schedule(epoch):
             if epoch < 10:
                 return 1.0  # No decay for epochs < 10
             elif epoch < 20:
@@ -72,8 +72,7 @@ def train(audio_model, train_loader, test_loader, args):
         epic_warmup_step = 2 * len(train_loader)
     else:
         scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, list(range(args.lrscheduler_start, 1000, args.lrscheduler_step)),gamma=args.lrscheduler_decay)
-    args.loss_fn = loss_fn
-    
+
     accelerator.print('now training with {:s}, main metrics: {:s}, loss function: {:s}, learning rate scheduler: {:s}'.format(str(args.dataset), str(main_metrics), str(loss_fn), str(scheduler)))
     accelerator.print('The learning rate scheduler starts at {:d} epoch with decay rate of {:.3f} every {:d} epochs'.format(args.lrscheduler_start, args.lrscheduler_decay, args.lrscheduler_step))
     
@@ -141,7 +140,7 @@ def train(audio_model, train_loader, test_loader, args):
                     patch_size = patch_size.item()
                     strides = strides.item()
                 else:
-                    patch_size, strides = None, None
+                    patch_size, strides = None, None # sets to default patch_size and strides
                 audio_output = audio_model(audio_input, if_random_cls_token_position=args.if_random_cls_token_position, patch_size=patch_size, strides=strides)
             else:
                 # TODO: not yet implemented flexible training for AST
@@ -152,7 +151,7 @@ def train(audio_model, train_loader, test_loader, args):
             else:
                 loss = loss_fn(audio_output, labels)
             
-            if args.if_nan2num: # TODO: Handle this in accelerator case
+            if args.if_nan2num:
                 loss = torch.nan_to_num(loss)
 
             loss_value = loss.item()
@@ -243,11 +242,12 @@ def train(audio_model, train_loader, test_loader, args):
             _save_progress()
 
             loss_meter.reset()
-
+        
+        accelerator.wait_for_everyone()
         scheduler.step()
         epoch += 1
 
-def validate_acc(audio_model, val_loader, args, epoch):
+def validate_acc(audio_model, val_loader, args, epoch, save_pred=True):
     
     accelerator = args.accelerator
 
@@ -258,8 +258,15 @@ def validate_acc(audio_model, val_loader, args, epoch):
         A_targets = []
         A_loss = []
 
+    if args.loss == 'BCE':
+        loss_fn = nn.BCEWithLogitsLoss()
+    elif args.loss == 'CE':
+        loss_fn = nn.CrossEntropyLoss()
+    else:
+        raise ValueError('loss function not defined')
+
     with torch.no_grad():
-        for i, batch in enumerate(val_loader):
+        for i, batch in enumerate(tqdm(val_loader)):
             if args.dataset == 'epic_sounds':
                 audio_input, labels, _, _ = batch
             else:
@@ -270,10 +277,10 @@ def validate_acc(audio_model, val_loader, args, epoch):
             audio_output = torch.sigmoid(audio_output)
             predictions = audio_output.detach()
 
-            if isinstance(args.loss_fn, torch.nn.CrossEntropyLoss):
-                loss = args.loss_fn(audio_output, torch.argmax(labels.long(), axis=1))
+            if isinstance(loss_fn, torch.nn.CrossEntropyLoss):
+                loss = loss_fn(audio_output, torch.argmax(labels.long(), axis=1))
             else:
-                loss = args.loss_fn(audio_output, labels)
+                loss = loss_fn(audio_output, labels)
 
             gathered_predictions = accelerator.gather(predictions)
             gathered_labels = accelerator.gather(labels)
@@ -287,6 +294,8 @@ def validate_acc(audio_model, val_loader, args, epoch):
                 A_targets.append(gathered_labels)
                 A_loss.append(gathered_loss)
 
+        accelerator.wait_for_everyone()
+
         if accelerator.is_main_process:
             audio_output = torch.cat(A_predictions)
             audio_output = audio_output.to('cpu').detach()
@@ -299,63 +308,17 @@ def validate_acc(audio_model, val_loader, args, epoch):
             
             stats = calculate_stats(audio_output, target)
 
-            exp_dir = args.exp_dir
-            if os.path.exists(exp_dir+'/predictions') == False:
-                os.mkdir(exp_dir+'/predictions')
-                np.savetxt(exp_dir+'/predictions/target.csv', target, delimiter=',')
-            np.savetxt(exp_dir+'/predictions/predictions_' + str(epoch) + '.csv', audio_output, delimiter=',')
+            if save_pred:
+                exp_dir = args.exp_dir
+                if os.path.exists(exp_dir+'/predictions') == False:
+                    os.mkdir(exp_dir+'/predictions')
+                    np.savetxt(exp_dir+'/predictions/target.csv', target, delimiter=',')
+                np.savetxt(exp_dir+'/predictions/predictions_' + str(epoch) + '.csv', audio_output, delimiter=',')
         else: 
             stats = None
             loss = None
 
     return stats, loss        
-
-
-def validate(audio_model, val_loader, args, epoch):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    batch_time = AverageMeter()
-    audio_model = audio_model.to(device)
-    audio_model.eval()
-
-    end = time.time()
-    A_predictions = []
-    A_targets = []
-    A_loss = []
-    with torch.no_grad():
-        for i, (audio_input, labels,path) in enumerate(val_loader):
-            audio_input = audio_input.to(device)
-
-            audio_output = audio_model(audio_input)
-            if args.if_nan2num:
-                audio_output = torch.nan_to_num(audio_output)
-            audio_output = torch.sigmoid(audio_output)
-            predictions = audio_output.to('cpu').detach()
-
-            A_predictions.append(predictions)
-            A_targets.append(labels)
-
-            labels = labels.to(device)
-            if isinstance(args.loss_fn, torch.nn.CrossEntropyLoss):
-                loss = args.loss_fn(audio_output, torch.argmax(labels.long(), axis=1))
-            else:
-                loss = args.loss_fn(audio_output, labels)
-            A_loss.append(loss.to('cpu').detach())
-
-            batch_time.update(time.time() - end)
-            end = time.time()
-
-        audio_output = torch.cat(A_predictions)
-        target = torch.cat(A_targets)
-        loss = np.mean(A_loss)
-        stats = calculate_stats(audio_output, target)
-
-        exp_dir = args.exp_dir
-        if os.path.exists(exp_dir+'/predictions') == False:
-            os.mkdir(exp_dir+'/predictions')
-            np.savetxt(exp_dir+'/predictions/target.csv', target, delimiter=',')
-        np.savetxt(exp_dir+'/predictions/predictions_' + str(epoch) + '.csv', audio_output, delimiter=',')
-
-    return stats, loss
 
 def validate_ensemble(args, epoch):
     exp_dir = args.exp_dir
@@ -375,6 +338,7 @@ def validate_ensemble(args, epoch):
     stats = calculate_stats(cum_predictions, target)
     return stats
 
+# Note: this function has not been used and tested, may have bugs, kept here as a reference. 
 def validate_wa(audio_model, val_loader, accelerator, args, start_epoch, end_epoch):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     exp_dir = args.exp_dir
@@ -399,6 +363,8 @@ def validate_wa(audio_model, val_loader, accelerator, args, start_epoch, end_epo
     print(audio_model.load_state_dict(sdA, strict=False))
 
     torch.save(audio_model.state_dict(), exp_dir + '/models/latest_audio_model_wa.pth')
-
-    stats, loss = validate(audio_model, val_loader, args, 'wa')
+    
+    audio_model, val_loader = accelerator.prepare(audio_model, val_loader)
+    
+    stats, loss = validate_acc(audio_model, val_loader, args, 'wa')
     return stats
