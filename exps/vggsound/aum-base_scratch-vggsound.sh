@@ -30,12 +30,11 @@ noise=False
 metrics=acc
 loss=BCE
 warmup=True
-bimamba_type=v1
 
 skip_norm=False
 n_class=309
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # modify according to yours
 exp_name=aum-base_scratch-vggsound
 
 exp_dir=$exp_root/$exp_name
@@ -63,4 +62,4 @@ CUDA_VISIBLE_DEVICES=0 CUDA_CACHE_DISABLE=1 accelerate launch --mixed_precision=
 --tstride $tstride --fstride $fstride \
 --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --audio_length ${audio_length} --noise ${noise} \
 --metrics ${metrics} --loss ${loss} --warmup ${warmup} --lrscheduler_start ${lrscheduler_start} --lrscheduler_step ${lrscheduler_step} --lrscheduler_decay ${lrscheduler_decay} \
---exp-name ${exp_name} --model_type ${model_type} --bs_scale_factor ${bs_scale_factor} --bimamba_type ${bimamba_type}
+--exp-name ${exp_name} --model_type ${model_type} --bs_scale_factor ${bs_scale_factor}

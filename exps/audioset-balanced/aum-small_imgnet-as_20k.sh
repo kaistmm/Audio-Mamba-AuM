@@ -29,6 +29,7 @@ audio_length=1024
 noise=False
 
 n_class=527
+aum_type=Bi-Bi
 
 metrics=mAP
 loss=BCE
@@ -62,4 +63,4 @@ CUDA_VISIBLE_DEVICES=0 CUDA_CACHE_DISABLE=1 accelerate launch --mixed_precision=
 --tstride $tstride --fstride $fstride --imagenet_pretrain $imagenet_pretrain --imagenet_pretrain_path $imagenet_pretrain_path \
 --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --audio_length ${audio_length} --noise ${noise} \
 --metrics ${metrics} --loss ${loss} --warmup ${warmup} --lrscheduler_start ${lrscheduler_start} --lrscheduler_step ${lrscheduler_step} --lrscheduler_decay ${lrscheduler_decay} \
---exp-name ${exp_name} --model_type ${model_type}
+--exp-name ${exp_name} --model_type ${model_type} --aum_type ${aum_type}

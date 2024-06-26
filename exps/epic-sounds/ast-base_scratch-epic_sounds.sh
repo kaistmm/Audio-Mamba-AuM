@@ -22,7 +22,7 @@ warmup=True
 
 n_class=44
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # Modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # Modify according to yours
 exp_name=ast-base_scratch-epic_sounds
 
 exp_dir=$exp_root/$exp_name

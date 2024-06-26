@@ -41,7 +41,7 @@ warmup=True
 skip_norm=False
 n_class=1251
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # modify according to yours
 exp_name=ast-base_audioset-voxceleb
 
 exp_dir=$exp_root/$exp_name

@@ -35,8 +35,9 @@ warmup=True
 
 skip_norm=False
 n_class=1251
+aum_type=Bi-Bi
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # modify according to yours
 exp_name=aum-small_imgnet-voxceleb
 
 exp_dir=$exp_root/$exp_name
@@ -64,4 +65,4 @@ CUDA_VISIBLE_DEVICES=0 CUDA_CACHE_DISABLE=1 accelerate launch --mixed_precision=
 --tstride $tstride --fstride $fstride --imagenet_pretrain $imagenet_pretrain --imagenet_pretrain_path $imagenet_pretrain_path \
 --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --audio_length ${audio_length} --noise ${noise} \
 --metrics ${metrics} --loss ${loss} --warmup ${warmup} --lrscheduler_start ${lrscheduler_start} --lrscheduler_step ${lrscheduler_step} --lrscheduler_decay ${lrscheduler_decay} \
---exp-name ${exp_name} --model_type ${model_type}
+--exp-name ${exp_name} --model_type ${model_type} --aum_type ${aum_type}

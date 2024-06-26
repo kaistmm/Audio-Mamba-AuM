@@ -29,13 +29,14 @@ lrscheduler_step=1
 lrscheduler_decay=0.85
 
 n_class=35
+aum_type=Bi-Bi
 
 tr_data=./data/datafiles/speechcommand_train_data.json
 val_data=./data/datafiles/speechcommand_valid_data.json
 eval_data=./data/datafiles/speechcommand_eval_data.json
 label_csv=./data/speechcommands_class_labels_indices.csv
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # modify according to yours
 exp_name=aum-small_imgnet-spc_v2
 
 exp_dir=$exp_root/$exp_name
@@ -65,4 +66,4 @@ CUDA_VISIBLE_DEVICES=0 CUDA_CACHE_DISABLE=1 accelerate launch --mixed_precision=
 --tstride $tstride --fstride $fstride --imagenet_pretrain $imagenet_pretrain --imagenet_pretrain_path $imagenet_pretrain_path \
 --metrics ${metrics} --loss ${loss} --warmup ${warmup} --lrscheduler_start ${lrscheduler_start} --lrscheduler_step ${lrscheduler_step} --lrscheduler_decay ${lrscheduler_decay} \
 --dataset_mean ${dataset_mean} --dataset_std ${dataset_std} --audio_length ${audio_length} --noise ${noise} \
---exp-name ${exp_name} --model_type ${model_type}
+--exp-name ${exp_name} --model_type ${model_type} --aum_type ${aum_type}

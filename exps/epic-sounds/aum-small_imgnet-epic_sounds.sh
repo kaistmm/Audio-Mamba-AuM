@@ -22,8 +22,9 @@ loss=CE
 warmup=True
 
 n_class=44
+aum_type=Bi-Bi
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # Modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # Modify according to yours
 exp_name=aum-small_imgnet-epic_sounds
 
 exp_dir=$exp_root/$exp_name
@@ -49,4 +50,4 @@ CUDA_VISIBLE_DEVICES=0 CUDA_CACHE_DISABLE=1 accelerate launch --mixed_precision=
 --tstride $tstride --fstride $fstride --imagenet_pretrain $imagenet_pretrain --imagenet_pretrain_path $imagenet_pretrain_path \
 --audio_length ${audio_length} --metrics ${metrics} --loss ${loss} --warmup ${warmup} \
 --freqm ${freqm} --timem ${timem} \
---exp-name ${exp_name} --model_type ${model_type}
+--exp-name ${exp_name} --model_type ${model_type} --aum_type ${aum_type}

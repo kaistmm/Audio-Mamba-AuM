@@ -23,11 +23,10 @@ audio_length=1024
 metrics=acc
 loss=CE
 warmup=True
-bimamba_type=v1
 
 n_class=44
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # Modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # Modify according to yours
 exp_name=aum-base_audioset-epic_sounds
 
 exp_dir=$exp_root/$exp_name
@@ -53,4 +52,4 @@ CUDA_VISIBLE_DEVICES=0 CUDA_CACHE_DISABLE=1 accelerate launch --mixed_precision=
 --tstride $tstride --fstride $fstride --imagenet_pretrain $imagenet_pretrain --aum_pretrain $aum_pretrain --aum_pretrain_path $aum_pretrain_path --aum_pretrain_fstride $aum_pretrain_fstride --aum_pretrain_tstride $aum_pretrain_tstride \
 --audio_length ${audio_length} --metrics ${metrics} --loss ${loss} --warmup ${warmup} \
 --freqm ${freqm} --timem ${timem} \
---exp-name ${exp_name} --model_type ${model_type} --bimamba_type ${bimamba_type}
+--exp-name ${exp_name} --model_type ${model_type}

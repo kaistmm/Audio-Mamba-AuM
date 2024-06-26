@@ -34,7 +34,7 @@ val_data=./data/datafiles/speechcommand_valid_data.json
 eval_data=./data/datafiles/speechcommand_eval_data.json
 label_csv=./data/speechcommands_class_labels_indices.csv
 
-exp_root=/mnt/lynx2/users/mhamza/audiomamba # modify according to yours
+exp_root=/mnt/lynx2/users/mhamza/audiomamba/exp # modify according to yours
 exp_name=ast-small_imgnet-spc_v2
 
 exp_dir=$exp_root/$exp_name
