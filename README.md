@@ -5,9 +5,8 @@
 ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03344)
 </div>
 
-⚠️🚧 **This repository is under construction. Stay tuned!** 🚧⚠️
-
 ## News
+- ``26 June 2024`` Code cleanup, enhancements and improvements!
 - ``16 June 2024`` Added more details for EPIC-SOUNDS!
 - ``11 June 2024`` Training scripts released!
 - ``10 June 2024`` Setup guide released!
@@ -15,6 +14,14 @@ ArXiv Preprint: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03
 - ``06 June 2024`` Checkpoints released!
 - ``05 June 2024`` ArXiv Preprint released: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03344)
 - ``22 April 2024`` OpenReview Preprint released: [https://openreview.net/forum?id=RZu0ZlQIUI](https://openreview.net/forum?id=RZu0ZlQIUI)
+
+## Index
+- [Overview](#overview)
+- [Setting Up the Repository](#setting-up-the-repository)
+- [Inference](#inference)
+- [Training](#training)
+- [Model Checkpoints](#model-checkpoints)
+- [Citation](#citation)
 
 ## Overview
 This repository contains the implementation of Audio-Mamba (AuM), a generic, self-attention-free and purely state space model designed for audio classification. It provides the necessary code for training and evaluating the model across various audio classification benchmarks. AuM is built on the works [AST](https://github.com/YuanGongND/ast) and [ViM](https://github.com/hustvl/Vim), and it utilizes Hugging Face's [Accelerate](https://huggingface.co/docs/accelerate/en/index) library to facilitate efficient multi-GPU training.
@@ -56,7 +63,12 @@ cp -rf vim-mamba_ssm/mamba_ssm $CONDA_PREFIX/lib/python3.10/site-packages
 ```
 
 ## Inference
+
+### Example Inference
 An example notebook for inference is provided in the `examples/inference` directory. The notebook demonstrates a minimal example of how to load a trained model and perform inference on a sample audio file.
+
+### Evaluation Scripts
+Each dataset folder within the `exps/` directory includes an example evaluation script for AuM (`aum_eval.sh`).
 
 ## Training
 
@@ -114,7 +126,7 @@ These are the checkpoints for the small models with the variant `Bi-Bi (c)`, ini
 | VGGSound (Acc) | 25.5M | 49.61 |           [Link](https://drive.google.com/file/d/11mEtjfHjkGGFjxVHvXIAX60KrBgWwWhQ/view?usp=drive_link) |
 | VoxCeleb (Acc) | 25.8M | 41.78 |           [Link](https://drive.google.com/file/d/1NoherLBbOP5eE1iMQ8joas1k0lYwAmd8/view?usp=drive_link) |
 | Speech Commands V2 (Acc) | 25.2M | 97.61 | [Link](https://drive.google.com/file/d/1jhUKxzUo2TMHrd1a2vojjv1x9De_HyFe/view?usp=drive_link) |
-| Epic Sounds (Acc) | 25.4M | 52.69 |        [Link](https://drive.google.com/file/d/1my_kS9COIHGsx4axx8bapN7RBDvp06cK/view?usp=drive_link) |
+| Epic Sounds (Acc) | 25.4M | 53.45 |        [Link](https://drive.google.com/file/d/1i9ANh01FWB8UY9ruQ81Ov5UnoXuhq0PQ/view?usp=drive_link) |
 
 ### Base AudioSet
 These are the checkpoints for the base models with the variant `Fo-Bi (b)`, initialized with AudioSet pretrained weights.
@@ -125,3 +137,15 @@ These are the checkpoints for the base models with the variant `Fo-Bi (b)`, init
 | VoxCeleb (Acc) | 92.7M | 41.82 |           [Link](https://drive.google.com/file/d/1dqWSIKTvA0wqKy-XTXYn-MUourMtHGrQ/view?usp=drive_link) |
 | Speech Commands V2 (Acc) | 91.4M | 94.82 | [Link](https://drive.google.com/file/d/1ikkU4COOqeCNCVTn4b7LulNr9p4Efr4M/view?usp=drive_link) |
 | Epic Sounds (Acc) | 91.7M | 48.31 |        [Link](https://drive.google.com/file/d/1wsRhPqtHryi3PQz1WPJYkMMOPbmOMXrV/view?usp=drive_link) |
+
+## Citation
+If you find this work useful, please consider citing us:
+
+```bibtex
+@article{erol2024audio,
+  title={Audio Mamba: Bidirectional State Space Model for Audio Representation Learning},
+  author={Erol, Mehmet Hamza and Senocak, Arda and Feng, Jiu and Chung, Joon Son},
+  journal={arXiv preprint arXiv:2406.03344},
+  year={2024}
+}
+```
