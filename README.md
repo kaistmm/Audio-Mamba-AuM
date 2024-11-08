@@ -2,11 +2,11 @@
 
 # Audio-Mamba (AuM)
 ## Bidirectional State Space Model for Audio Representation Learning
-ArXiv: [https://arxiv.org/abs/2406.03344](https://arxiv.org/abs/2406.03344)
+[[ArXiv]](https://arxiv.org/abs/2406.03344), [[IEEE-SPL]](https://ieeexplore.ieee.org/document/10720871)
 </div>
 
 ## News
-- ``13 October 2024`` AuM is accepted at SPL (Signal Processing Letters)!
+- ``13 October 2024`` AuM is accepted at SPL (Signal Processing Letters): [https://ieeexplore.ieee.org/document/10720871](https://ieeexplore.ieee.org/document/10720871)
 - ``26 June 2024`` Code cleanup, enhancements and improvements!
 - ``16 June 2024`` Added more details for EPIC-SOUNDS!
 - ``11 June 2024`` Training scripts released!
