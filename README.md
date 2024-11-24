@@ -144,9 +144,12 @@ If you find this work useful, please consider citing us:
 
 ```bibtex
 @article{erol2024audio,
-  title={Audio Mamba: Bidirectional State Space Model for Audio Representation Learning},
   author={Erol, Mehmet Hamza and Senocak, Arda and Feng, Jiu and Chung, Joon Son},
-  journal={arXiv preprint arXiv:2406.03344},
-  year={2024}
+  journal={IEEE Signal Processing Letters}, 
+  title={Audio Mamba: Bidirectional State Space Model for Audio Representation Learning}, 
+  year={2024},
+  volume={31},
+  pages={2975-2979},
+  doi={10.1109/LSP.2024.3483009}
 }
 ```
